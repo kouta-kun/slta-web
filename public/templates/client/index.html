@@ -40,15 +40,20 @@
     function tmPath() {
         return "{% static 'uruland.png' %}";
     }
+
+    function gotoBit() {
+        window.location = "/public/";
+    }
     </script>
-    <script src="{% static 'map_engine.js' %}"></script>
-    <script src="{% static 'engine.js' %}"></script>
+    <script src="{% static 'sltabase.js' %}"></script>
     <script src="{% static 'sltawc.js' %}"></script>
+    <script src="{% static 'engine.js' %}"></script>
+    <script src="{% static 'map_engine.js' %}"></script>
 </head>
 <body onload="init()">
 <div class="container-fluid">
     <center>
-        <canvas style="margin-left: auto; margin-right: auto;" width="250" height="250" id="be_2d">
+        <canvas onclick="gotoBit()" style="margin-left: auto; margin-right: auto;" width="250" height="250" id="be_2d">
         </canvas>
     </center>
     <h1 align="center">Bit Logística</h1>
