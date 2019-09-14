@@ -69,6 +69,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'sltaweb.wsgi.application'
+WSGI_LOG = 'logs'
 
 
 # Database
