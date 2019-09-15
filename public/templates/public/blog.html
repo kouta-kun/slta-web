@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>bit.plan</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"></script>
+    <script src="{% static 'sltabase.js' %}"></script>
+    <script src="{% static 'showdown.min.js' %}"></script>
+    <script>
+    showdown.setOption('tables', true);
+    async function init() {
+        let blogdata = await fetch('blogpost');
+        blogdata = await blogdata.json();
+        let blogposts = {};
+        let postdict = {};
+        for(let i = 0; i < blogdata.length; i++) {
+            let blogYear = blogdata[i].fields.fecha.split('-')[0];
+            if(blogposts[blogYear] === undefined)
+                blogposts[blogYear] = [];
+            blogposts[blogYear].push({'fecha': blogdata[i].fields.fecha,
+                                      'titulo': blogdata[i].pk});
+            postdict[blogdata[i].pk] = blogdata[i].fields.markup;
+        }
+        for(let key in blogposts) {
+            let menu = document.createElement('li');
+            menu.classList = 'nav-item dropdown';
+            let amenu = document.createElement('a');
+            amenu.classList = 'nav-link dropdown-toggle';
+            amenu.href = '#';
+            amenu.id = key + "dropDown";
+            amenu.role='button';
+            amenu.setAttribute("data-toggle", 'dropdown');
+            amenu.innerText = key;
+            menu.appendChild(amenu);
+            let dmenu = document.createElement('div');
+            dmenu.classList = 'dropdown-menu';
+            dmenu.setAttribute("aria-labelledby", key + "dropDown");
+            for(let i = 0; i < blogposts[key].length; i++) {
+                let item = document.createElement('a');
+                item.classList = 'dropdown-item';
+                item.href = '#';
+                let mdtext = postdict[blogposts[key][i].titulo];
+                item.onclick = () => strMarkdown(mdtext, x => setSiteHtml(x));
+                dmenu.appendChild(item);
+                item.innerText = blogposts[key][i].titulo;
+            }
+            menu.appendChild(dmenu);
+            document.getElementById('blogList').appendChild(menu);
+        }
+    }
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, height=device-height" />
+</head>
+<body onload="init()">
+<div class="container-fluid">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="./" onclick="mainSite();">bit.plan</a>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto" id="blogList">
+            </ul>
+        </div>
+    </nav>
+    <div style="width: 100%; margin-left: auto; margin-right: auto;" id="siteBox">
+    </div>
+</div>
+</body>
+</html>

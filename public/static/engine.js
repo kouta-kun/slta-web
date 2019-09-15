@@ -50,7 +50,6 @@ async function engine_main() {
         ctx.btext.push(randomBinary());
     }
     const roadSpeed = 2; // mayor roadspeed -> menor velocidad de rotación
-    const senScale = escalaSeno(9^((frameRate*roadSpeed)-1), 30);
     function animate() {
         ctx.lineWidth = 1;
         ctx.fillStyle = "white";
@@ -75,9 +74,7 @@ async function engine_main() {
         ctx.translate(-125,-125);                 // y volvemos a nuestra posición inicial
         ctx.lineWidth = 3;
         for(var i = 0; i < 10; i++) {
-            let yRatio = ((i+1)*frameCount)^(i-1);
-            let wRatio = senScale(yRatio) + 125;
-            ctx.strokeStyle = "rgb(255,255," + wRatio + ")";
+            ctx.strokeStyle = "rgb(255,255,0)";
             ctx.beginPath();
             ctx.arc(125,125,105,
             (i*(360/10))*Math.PI / 180, ((i*(360/10))+(360/20)) * Math.PI / 180); // dibujamos las lineas de la ruta
