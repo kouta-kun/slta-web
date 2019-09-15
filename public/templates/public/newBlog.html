@@ -1,0 +1,13 @@
+<form action="blogpost" method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <hr/>
+    {{ form.titulo.errors }}
+    {{ form.titulo.label_tag }}
+    {{ form.titulo }}
+    <hr/>
+    {{ form.texto.errors }}
+    {{ form.texto.label_tag }}
+    {{ form.texto }}
+    <input type="submit" value="Enviar">
+</form>

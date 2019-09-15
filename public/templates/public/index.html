@@ -18,69 +18,32 @@
             crossorigin="anonymous"></script>
     <script src="{% static 'showdown.min.js' %}"></script>
     <script src="{% static 'sltabase.js' %}"></script>
-    <script src="{% static 'engine.js' %}"></script>
     <script>
-    function target_lotes() {
-        return {{ lc_target }};
-    }
-    function target_clients() {
-        return {{ cl_target }};
-    }
-    function target_cars() {
-        return {{ ca_target }};
-    }
-    function route_bit() {
-        return "{% static 'bit.png' %}";
-    }
-    function route_road() {
-        return "{% static 'road.png' %}";
-    }
-
-    initE = init;
     var initDom = null;
-    init = function() {initE(); initDom = document.getElementById('siteBox').innerHTML;}
-
-    function setSiteHtml(html) {
-        document.getElementById('siteBox').innerHTML=html;
-    }
+    init = function() {initDom = document.getElementById('siteBox').innerHTML;}
 
     function mainSite() {
         setSiteHtml(initDom);
-        init();
     }
 
     async function acercaDe() {
-        var converter = new showdown.Converter();
-        var text = await (await fetch("{% static 'acercade.md' %}")).text();
-        setSiteHtml(converter.makeHtml(text));
+        await loadMarkDown("{% static 'acercade.md' %}", setSiteHtml);
     }
 
     async function acercaSlta() {
-        var converter = new showdown.Converter();
-        var text = await (await fetch("{% static 'slta.md' %}")).text();
-        setSiteHtml(converter.makeHtml(text));
+        await loadMarkDown("{% static 'slta.md' %}", setSiteHtml);
     }
 
     async function acercaSltaWC() {
-        var converter = new showdown.Converter();
-        var text = await (await fetch("{% static 'slta-wc.md' %}")).text();
-        setSiteHtml(converter.makeHtml(text));
-    }
-
-    function productList() {
-        document.getElementById('header').innerText = "Productos";
-        document.getElementById('desc').innerHTML = 'Bit tiene actualmente 2 líneas de productos:<br/><ul><li onclick="acercaSlta()" style="color: #5f7f5f;">SLTA</li><li onclick="acercaSltaWC()">SLTA-Web Client</li></ul>';
+        await loadMarkDown("{% static 'slta-wc.md' %}", setSiteHtml);
     }
 
     async function precios() {
-        var converter = new showdown.Converter();
-        var text = await (await fetch("{% static 'precios.md' %}")).text();
-        setSiteHtml(converter.makeHtml(text));
+        await loadMarkDown("{% static 'precios.md' %}", setSiteHtml);
     }
     showdown.setOption('tables', true);
-
-
     </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, height=device-height" />
 </head>
 <body onload="init()">
 <div class="container-fluid">
@@ -113,27 +76,14 @@
                         <a class="dropdown-item" href="/client/">SPCC</a>
                     </div>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="blog">Blog</a>
+                </li>
             </ul>
         </div>
     </nav>
-    <div style="width: 60%; margin-left: auto; margin-right: auto;" id="siteBox">
-        <div style="width: 100%; height: 60px;"></div>
-        <center>
-            <canvas style="margin-left: auto; margin-right: auto;" width="250" height="250" id="be_2d">
-            </canvas>
-        </center>
-        <h1 align="center">Bit Logística</h1>
-        <hr style="width: 100%;"/>
-        <div class="row" align="center">
-            <div class="col-sm">Clientes</div>
-            <div class="col-sm">Vehículos</div>
-            <div class="col-sm">Lotes</div>
-        </div>
-        <div class="row" align="center">
-            <div class="col-sm" id="cl_td">0</div>
-            <div class="col-sm" id="ca_td">0</div>
-            <div class="col-sm" id="lc_td">0</div>
-        </div>
+    <div style="width: 100%; margin-left: auto; margin-right: auto;" id="siteBox">
+        <iframe src="{% static 'logosite.html' %}" style="width: 100%; height: 100vh; border: 0px;"></iframe>
     </div>
 </div>
 </body>

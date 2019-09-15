@@ -67,6 +67,44 @@ uruguay_right_bound = (-32.735860, -53.082159)[1]
 uruguay_bottom_bound = (-34.973293, -54.951898)[0]
 
 
+def get_places(request: HttpRequest):
+    global db
+    if request.method == "GET":
+        tok = request.GET.get("token", None)
+        data = {"valid": False}
+        if tok is None or tok not in toks.keys():
+            return HttpResponse(json.dumps(data), content_type='application/json', status=404)
+        vin = request.GET.get("vin", None)
+        if vin is None:
+            return HttpResponse(json.dumps(data), content_type='application/json', status=404)
+        if db is None:
+            opendb()
+        cur: pyodbc.Cursor = db.cursor()
+        data["path"] = []
+        data["valid"] = True
+        cname = toks[tok]
+        cur.execute(
+            "select l1.geox, l1.geoy, l1.nombre from vehiculo"
+            " inner join cliente on vehiculo.cliente=cliente.idcliente"
+            " inner join integra on integra.idvehiculo=vehiculo.idvehiculo"
+            " inner join lote on integra.lote=lote.idlote and not integra.invalidado"
+            " inner join lugar as l1 on l1.idlugar=lote.origen"
+            " inner join lugar as l2 on l2.idlugar=lote.destino"
+            " where cliente.nombre=? and vehiculo.VIN=?"
+            "\nunion\n "
+            "select l2.geox, l2.geoy, l2.nombre from vehiculo"
+            " inner join cliente on vehiculo.cliente=cliente.idcliente"
+            " inner join integra on integra.idvehiculo=vehiculo.idvehiculo"
+            " inner join lote on integra.lote=lote.idlote and not integra.invalidado"
+            " inner join lugar as l1 on l1.idlugar=lote.origen"
+            " inner join lugar as l2 on l2.idlugar=lote.destino"
+            " where cliente.nombre=? and vehiculo.VIN=?",
+            (cname, vin))
+        for r in cur.fetchall():
+            data["path"].append({"x": r[1], "y": r[0], "nombre": r[2]})
+        return HttpResponse(json.dumps(data), content_type='application/json', status=200)
+
+
 def get_gridpath(request: HttpRequest):
     global db
     if request.method == "GET":
@@ -94,20 +132,20 @@ def get_gridpath(request: HttpRequest):
             (cname, vin))
         for r in cur.fetchall():
             relX_1 = (abs(uruguay_left_bound - r[1]) / abs(uruguay_left_bound - uruguay_right_bound))
-            relX_1 = relX_1*32 + 2
+            relX_1 = relX_1 * 32 + 2
 
             relY_1 = (abs(uruguay_top_bound - r[0]) / abs(uruguay_top_bound - uruguay_bottom_bound))
-            relY_1 = relY_1*29 + 3
+            relY_1 = relY_1 * 29 + 3
 
             relX_2 = (abs(uruguay_left_bound - r[3]))
             relX_2 = relX_2 / abs(uruguay_left_bound - uruguay_right_bound)
-            relX_2 = relX_2*32 + 2
+            relX_2 = relX_2 * 32 + 2
 
             relY_2 = (abs(uruguay_top_bound - r[2]) / abs(uruguay_top_bound - uruguay_bottom_bound))
-            relY_2 = relY_2*29 + 3
+            relY_2 = relY_2 * 29 + 3
 
-            data["path"].append((int(relX_1), int(relY_1)-1, r[4], r[6]))
-            data["path"].append((int(relX_2), int(relY_2)-1, r[5], r[7]))
+            data["path"].append((int(relX_1), int(relY_1) - 1, r[4], r[6]))
+            data["path"].append((int(relX_2), int(relY_2) - 1, r[5], r[7]))
         return HttpResponse(json.dumps(data), content_type='application/json', status=200)
 
 
