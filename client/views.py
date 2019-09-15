@@ -33,7 +33,7 @@ def index(request: HttpRequest):
 def opendb():
     global db
     db = pyodbc.connect('DRIVER={IBM INFORMIX ODBC DRIVER (64-bit)};DATABASE=bitinfo' +
-                        ';SERVER=ol_esi;HOST=192.168.0.103;Service=9088;UID=root;PWD=root;')
+                        ';SERVER=ol_esi;HOST=192.168.0.121;Service=9088;UID=root;PWD=root;')
 
 
 def get_status(request: HttpRequest):

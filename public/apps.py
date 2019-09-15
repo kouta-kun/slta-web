@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class ClientConfig(AppConfig):
+class PublicConfig(AppConfig):
     name = 'public'
