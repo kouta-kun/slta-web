@@ -9,7 +9,8 @@ function setSiteHtml(html) {
     document.getElementById('siteBox').innerHTML=html;
 }
 
-function strMarkdown(str, htmlCallback) {
+function strMarkdown(str, htmlContentCallback, finalCallback) {
     let converter = new showdown.Converter();
-    htmlCallback(converter.makeHtml(str));
+    htmlContentCallback(converter.makeHtml(str));
+    if(finalCallback !== undefined) finalCallback();
 }
