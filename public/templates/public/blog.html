@@ -85,7 +85,7 @@
         console.log(x);
         document.getElementById('quoteBox').style = "clear:both;height:" + x + "vh;overflow-y: hidden;";
         document.getElementById('quoteBox').style.opacity = (x/15);
-        if(x < 13)
+        if(x < 20)
             setTimeout(unhideQuote,30,x+0.5);
     }
 
@@ -125,8 +125,8 @@
     <div style="clear: both; height: 0vh; overflow-y:hidden;" id="quoteBox">
         <hr/>
         <blockquote class="blockquote float-right">
-            <p class="mb-0">No basta un grito para que te escuchen si estás parado entre tanta gente</p>
-            <footer class="blockquote-footer">Fernando Santullo</footer>
+            <p class="mb-0">{{ quote_text }}</p>
+            <footer class="blockquote-footer">{{ quote_autor }}</footer>
         </blockquote>
     </div>
 </div>
