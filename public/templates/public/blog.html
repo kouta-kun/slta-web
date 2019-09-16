@@ -13,10 +13,6 @@
         .blogdiv {
             width: 30%;
         }
-
-
-
-
     </style>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -82,11 +78,11 @@
     var validposts = [];
 
     function unhideQuote(x) {
-        console.log(x);
-        document.getElementById('quoteBox').style = "clear:both;height:" + x + "vh;overflow-y: hidden;";
+        document.getElementById('quoteBox').style = "clear:both;height:" + x + "vh;overflow-y: hidden; margin-top: 5px;";
         document.getElementById('quoteBox').style.opacity = (x/15);
-        if(x < 20)
+        if(x < 15)
             setTimeout(unhideQuote,30,x+0.5);
+        else document.getElementById('quoteBox').style = "clear:both;height:vh;overflow-y: visible; margin-top: 5px;";
     }
 
     async function init() {
@@ -122,7 +118,7 @@
             <center><h2>Para ver un artículo haga click en su título</h2></center>
         </div>
     </div>
-    <div style="clear: both; height: 0vh; overflow-y:hidden;" id="quoteBox">
+    <div style="clear: both; height: 0vh; overflow-y:hidden; margin-top: 5px;" id="quoteBox">
         <hr/>
         <blockquote class="blockquote float-right">
             <p class="mb-0">{{ quote_text }}</p>
