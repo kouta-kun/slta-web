@@ -90,7 +90,11 @@
     }
 
     async function init() {
-        let blogdata = await fetch('blogpost');
+        let blogdata = await fetch('blogpost?' + (document.location.href.split('?')[1] || ""));
+        if(blogdata.status == 500) {
+            console.log(await blogdata.text());
+            return;
+        }
         blogdata = await blogdata.json();
         blogposts = {};
         validposts = [];

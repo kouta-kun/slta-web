@@ -10,6 +10,7 @@ from . import models, forms
 # Create your views here.
 from django.template import loader
 
+
 def blog(request: HttpRequest):
     if request.method == "GET":
         template = loader.get_template("public/blog.html")
@@ -26,6 +27,7 @@ def blog(request: HttpRequest):
         ctx = {'quote_text': quote[0], 'quote_autor': quote[1]}
         return HttpResponse(template.render(ctx, request))
 
+
 def index(request: HttpRequest):
     if request.method == "GET":
         template = loader.get_template("public/index.html")
@@ -41,6 +43,10 @@ def blogpost(request: HttpRequest):
         elif request.GET.get('clear', None) is not None:
             models.BlogPost.objects.all().delete()
             k = models.BlogPost.objects.all()
+            return HttpResponse(serializers.serialize('json', k), content_type='application/json')
+        elif request.GET.get('tags', None) is not None:
+            k = models.BlogPost.objects.filter(tags__contains=request.GET.get('tags', None)).all()
+            print("had tags, so", k)
             return HttpResponse(serializers.serialize('json', k), content_type='application/json')
         else:
             k = models.BlogPost.objects.all()
