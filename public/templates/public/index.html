@@ -18,6 +18,8 @@
             crossorigin="anonymous"></script>
     <script src="{% static 'showdown.min.js' %}"></script>
     <script src="{% static 'sltabase.js' %}"></script>
+    <script type="text/javascript" src="https://visjs.github.io/vis-network/dist/vis-network.min.js"></script>
+    <link href="https://visjs.github.io/vis-network/dist/vis-network.min.css" rel="stylesheet" type="text/css"/>
     <script>
     var initDom = null;
     init = function() {initDom = document.getElementById('siteBox').innerHTML; opacitySite(0, 0.05);}
@@ -43,7 +45,111 @@
         pageCount = 0;
         setSiteHtml(initDom);
     }
+    const directiva = [
+          {'nombre': 'Salvador Pardiñas', 'alias': 'kouta-kun',
+           'afiliaciones': ['Bit SRL', 'Red Bull', 'Arch Linux'],
+           'cargo': 'Encargado de Base de Datos, activity leader de Programación en 1ra entrega, activity leader de Sistemas Operativos en 2da entrega'},
+          {'nombre': 'Daniel Padrón', 'alias': 'dpadron',
+           'afiliaciones': ['Bit SRL', 'KGB', 'Red Hat'],
+           'cargo': 'Encargado de ADA, activity leader de Sistemas Operativos en 1ra entrega, activity leader de Programación en 2da entrega'},
+          {'nombre': 'Tomás Camacho', 'alias': 'nickx456',
+           'afiliaciones': ['Bit SRL', 'Riot', 'Micro$'],
+           'cargo': 'Encargado de Formación Empresarial, activity leader de Proyecto en 1ra entrega'},
+          {'nombre': 'Leonardo Couto', 'alias': 'Comobo',
+           'afiliaciones': ['Bit SRL', 'Valve', 'Micro$'],
+           'cargo': 'Encargado de Taller, activity leader de Taller en 1ra y 2da entrega'},
+          {'nombre': 'Facundo Silvetti', 'alias': 'parawhy',
+           'afiliaciones': ['Bit SRL', 'Stroessner', 'Micro$'],
+           'cargo': 'Indefinido'}];
+    const equipos = [
+        {'nombre': 'SLTAverse', 'miembros': ['kouta-kun', 'dpadron'], 'texto': 'Equipo principal de desarrolladores de la aplicación y sus extensiones'},
+        {'nombre': 'ADA-Wong', 'miembros': ['dpadron', 'nickx456', 'Comobo'], 'texto': 'Equipo de análisis y desarrollo de aplicaciones'},
+        {'nombre': 'DBD-ROM', 'miembros': ['kouta-kun', 'dpadron', 'nickx456'], 'texto': 'Equipo de desarrollo y documentación de la base de datos'},
+        {'nombre': 'Infraestructura situacional', 'miembros': ['Comobo', 'kouta-kun'], 'texto': 'Equipo de Infraestructura y redes'},
+        {'nombre': 'Logistic System Distribution', 'miembros': ['kouta-kun', 'dpadron'], 'texto': 'Desarrolladores de la distribución de servidor y shells'},
+        {'nombre': 'Finanzas ilegales', 'miembros': ['nickx456', 'parawhy', 'Comobo'], 'texto': 'Encargados del area empresarial'},
+        {'nombre': 'Ingestión de proyectos', 'miembros': ['dpadron', 'nickx456'], 'texto': 'Encargados de gestión del proyecto'}
+    ];
 
+    function filterFor(k) {
+        equipos_validos = equipos.filter(x => x.miembros.indexOf(k) >= 0);
+        console.log(k);
+        directivaShow();
+    }
+
+    let equipos_validos = equipos;
+    async function directivaShow() {
+        let box = document.getElementById('siteBox');
+        while(box.firstChild)
+            box.removeChild(box.firstChild);
+        let parent = document.createElement('div');
+        parent.style.width = "100%";
+        box.appendChild(parent);
+        let dirs = document.createElement('div');
+        for(let k = 0; k < 5; k++)
+        {
+            directiva[k].id = (k+1);
+            directiva[k].level = (k&1)?1:0;
+            let card = document.createElement('div');
+            card.classList = 'card';
+            let cardbody = document.createElement('div');
+            cardbody.classList = 'card-body';
+            let cardtitle = document.createElement('h5');
+            cardtitle.innerText = directiva[k].nombre;
+            cardtitle.classList = 'card-title';
+            let cardtext = document.createElement('div');
+            cardtext.classList = 'card-text';
+            cardtext.innerHTML = directiva[k].afiliaciones.map(x => ' <span class="badge badge-secondary">' + x + '</span>').join(' ') + ' <span onclick="filterFor(\'' + directiva[k].alias + '\')" class="badge badge-primary">' + directiva[k].alias + "</span><hr/>" + directiva[k].cargo;
+            cardbody.appendChild(cardtitle);
+            cardbody.appendChild(cardtext);
+            card.appendChild(cardbody);
+            card.style["margin-bottom"] = "15px";
+            card.style["margin-top"] = "15px";
+            card.style["background-color"] = "#4444bc";
+            card.style["color"] = "#f0f0f0";
+            dirs.appendChild(card);
+        }
+        dirs.classList = 'float-left';
+        dirs.style.width = "40%";
+        parent.appendChild(dirs);
+        let groups = document.createElement('div');
+        for(let k = 0; k < equipos_validos.length; k++)
+        {
+            equipos_validos[k].id = (11+k);
+            equipos_validos[k].level = (k&2)?1:0;
+            let card = document.createElement('div');
+            card.classList = 'card';
+            let cardbody = document.createElement('div');
+            cardbody.classList = 'card-body';
+            let cardtitle = document.createElement('h5');
+            cardtitle.innerText = equipos_validos[k].nombre;
+            cardtitle.classList = 'card-title';
+            let cardtext = document.createElement('div');
+            cardtext.classList = 'card-text';
+            cardtext.innerHTML = equipos_validos[k].miembros.map(x => ' <span class="badge badge-primary">' + x + '</span>').join(' ') + "<hr/>" + equipos_validos[k].texto;
+            cardbody.appendChild(cardtitle);
+            cardbody.appendChild(cardtext);
+            card.appendChild(cardbody);
+            card.style["margin-bottom"] = "15px";
+            card.style["margin-top"] = "15px";
+            card.style["background-color"] = "#bc4433";
+            card.style["color"] = "#e0e0f0";
+            groups.appendChild(card);
+        }
+        groups.classList = 'float-right';
+        groups.style.width = "40%";
+        parent.appendChild(groups);
+        var nodes = new vis.DataSet([...directiva, ...equipos_validos].map(x => ({'id': x.id, 'label': x.nombre, 'level': x.level})));
+        var edges = new vis.DataSet(equipos_validos.map(x => x.miembros.map(m => ({'from': x.id, 'to': directiva.filter(j => j.alias===m)[0].id}))).flat());
+        console.log(edges);
+        console.log(nodes);
+        var container = document.createElement('div');
+        container.style = "clear: both; display: block; margin-top: 20px; width: 60%; margin-left: auto; margin-right: auto; height: 70vh; border: 1px solid black;";
+        var data = {nodes: nodes, edges: edges};
+        var options = {};
+        var network = new vis.Network(container, data, options);
+        box.appendChild(container);
+    }
 
     async function acercaDe(callback) {
         if(callback === undefined) callback = setSiteHtml;
@@ -81,8 +187,12 @@
         }
     }
     showdown.setOption('tables', true);
+
     </script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, height=device-height" />
+    <style>
+    </style>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, height=device-height"/>
 </head>
 <body onload="init()" onscroll="scroll()" style="overflow-y: scroll;">
 <div class="container-fluid">
@@ -117,6 +227,9 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="blog">Blog</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#directiva" onclick="directivaShow()">Directiva</a>
                 </li>
             </ul>
         </div>
