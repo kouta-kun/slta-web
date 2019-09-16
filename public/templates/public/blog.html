@@ -62,10 +62,10 @@
             let ctitle = document.createElement('h5');
             ctitle.classList = 'card-title';
             ctitle.innerText = blogposts[i].titulo;
-            ctitle.onclick = () => strMarkdown(mdtext, x => setSiteHtml(x + '<hr/>' + blogposts[i].fecha.split('T')[0]), () => opacityBlog(0.4));
+            ctitle.onclick = () => strMarkdown(mdtext, x => setSiteHtml('<br/><b>'+blogposts[i].tags.join(', ')+'</b><hr/>'+x + '<hr/>' + blogposts[i].fecha.split('T')[0]), () => opacityBlog(0.4));
             let ctext = document.createElement('p');
             ctext.classList = 'card-text';
-            ctext.innerText = mdtext.slice(0,15);
+            ctext.innerText = '<i>' + blogposts[i].tags.join('|') + '</i>';
             cbody.appendChild(ctitle);
             cbody.appendChild(ctext);
             item.appendChild(cbody);
@@ -97,7 +97,8 @@
         for(let i = 0; i < blogdata.length; i++) {
             blogposts[blogdata[i].pk]= {'fecha': blogdata[i].fields.fecha,
                                       'titulo': blogdata[i].pk,
-                                      'texto': blogdata[i].fields.markup};
+                                      'texto': blogdata[i].fields.markup,
+                                      'tags': blogdata[i].fields.tags.split(',')};
             validposts.push(blogdata[i].pk);
         }
         console.log(blogposts);
