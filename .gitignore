@@ -1,2 +1,4 @@
 db.sqlite3
-__pycache__
+sltaweb/__pycache__
+public/__pycache__
+client/__pycache__
