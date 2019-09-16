@@ -65,7 +65,7 @@
             ctitle.onclick = () => strMarkdown(mdtext, x => setSiteHtml('<br/><b>'+blogposts[i].tags.join(', ')+'</b><hr/>'+x + '<hr/>' + blogposts[i].fecha.split('T')[0]), () => opacityBlog(0.4));
             let ctext = document.createElement('p');
             ctext.classList = 'card-text';
-            ctext.innerText = '<i>' + blogposts[i].tags.join('|') + '</i>';
+            ctext.innerHTML = '<i>' + blogposts[i].tags.join('|') + '</i>';
             cbody.appendChild(ctitle);
             cbody.appendChild(ctext);
             item.appendChild(cbody);
