@@ -55,7 +55,7 @@ def blogpost(request: HttpRequest):
         form = forms.BlogPostForm(request.POST)
         if form.is_valid():
             newPost = models.BlogPost(titulo=form.cleaned_data["titulo"], markup=form.cleaned_data["texto"],
-                                      fecha=datetime.datetime.now())
+                                      fecha=datetime.datetime.now(), tags=form.cleaned_data["tags"])
             newPost.save()
             k = models.BlogPost.objects.all()
             return HttpResponse(serializers.serialize('json', k), content_type='application/json')
