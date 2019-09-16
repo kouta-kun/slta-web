@@ -117,7 +117,7 @@
             let cardbody = document.createElement('div');
             cardbody.classList = 'card-body';
             let cardtitle = document.createElement('h5');
-            cardtitle.innerText = directiva[k].nombre;
+            cardtitle.innerHTML = '<a style="color: #f0f0f0;" href="/public/blog?tags=' + directiva[k].alias + '">' + directiva[k].nombre + '</a>';
             cardtitle.classList = 'card-title';
             let cardtext = document.createElement('div');
             cardtext.classList = 'card-text';
