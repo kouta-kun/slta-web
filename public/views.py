@@ -2,7 +2,7 @@ import datetime
 import random
 
 import pyodbc
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.core import serializers
 from django.shortcuts import render
 from . import models, forms
@@ -15,7 +15,7 @@ def blog(request: HttpRequest):
     if request.method == "GET":
         template = loader.get_template("public/blog.html")
         quote = random.choice([
-            ('No basta un grito para que te escuchen si estás parado entre tanta gente', 'Fernando Santullo'),
+            ('No basta un grito para que te escuchen si estás perdido entre tanta gente', 'Fernando Santullo'),
             ('No basta un grito para que te escuchen si estás parado entre tanto demente', 'Fernando Santullo'),
             ('Nunca debemos sentirnos satisfechos con nuestros éxitos. '
              'Debemos refrenar la autosatisfacción y criticar constantemente nuestros defectos, '
@@ -57,7 +57,6 @@ def blogpost(request: HttpRequest):
             newPost = models.BlogPost(titulo=form.cleaned_data["titulo"], markup=form.cleaned_data["texto"],
                                       fecha=datetime.datetime.now(), tags=form.cleaned_data["tags"])
             newPost.save()
-            k = models.BlogPost.objects.all()
-            return HttpResponse(serializers.serialize('json', k), content_type='application/json')
+            return HttpResponseRedirect("blog")
         else:
             return render(request, 'public/newBlog.html', {'form': form})
