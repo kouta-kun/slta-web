@@ -309,7 +309,7 @@ def get_token(request: HttpRequest):
             data["valid"] = False
             data["msg"] = "cname is none"
             return HttpResponse(json.dumps(data), content_type="application/json", status=404)
-        pwd = ("passwd" in rest_param and rest_param["passwd"]) or None
+        pwd: str = ("passwd" in rest_param and rest_param["passwd"]) or None
         if pwd is None:
             data["valid"] = False
             data["msg"] = "pwd is none"
@@ -325,7 +325,7 @@ def get_token(request: HttpRequest):
             cur.execute("select passphrase from cliente where nombre=?", (cname,))
             passphrase: str = cur.fetchval()
         passphrase_bytes = passphrase.encode()
-        pwd_bytes = passphrase.encode()
+        pwd_bytes = pwd.encode()
         if bcrypt.checkpw(pwd_bytes, passphrase_bytes):
             tkn = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase, k=12))
             toks[tkn] = cname
