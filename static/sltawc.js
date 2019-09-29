@@ -131,7 +131,7 @@ async function status(VIN) {
         document.getElementById('marcaTD').innerText = data.marca;
         document.getElementById('anioTD').innerText = data.anio;
         await listMsg(VIN);
-        var path = await postData('get_path' {token: tkn, vin: VIN});
+        var path = await postData('get_path', {token: tkn, vin: VIN});
         path = await path.json();
         //console.log(path);
         var e = document.getElementById('pathList');
