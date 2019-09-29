@@ -38,13 +38,30 @@ function init() {
     inc_clients();
 }
 
+async function postData(url = '', data = {}) {
+  // Default options are marked with *
+  const response = await fetch(url, {
+    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+    mode: 'cors', // no-cors, *cors, same-origin
+    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: 'same-origin', // include, *same-origin, omit
+    headers: {
+      'Content-Type': 'application/json'
+      // 'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    redirect: 'follow', // manual, *follow, error
+    referrer: 'no-referrer', // no-referrer, *client
+    body: JSON.stringify(data) // body data type must match "Content-Type" header
+  });
+  return await response.json(); // parses JSON response into native JavaScript objects
+}
+
 var tkn = null;
 
 async function clientData() {
     cname = document.getElementById('uname').value;
     pwd = document.getElementById('pwd').value;
-    const token = await fetch('get_token?cname='+cname+'&passwd='+pwd);
-    const resp = await token.json();
+    const resp = await postData('get_token', {cname: cname, passwd: pwd});
     var e = document.getElementById('databox');
     if(resp["valid"]) {
         tkn = resp["token"];
@@ -54,8 +71,7 @@ async function clientData() {
         e = document.getElementById('vehicleList');
         e.innerHTML = '';
         e.hidden = false;
-        var cars = await fetch('get_cars?token=' + tkn);
-        cars = await cars.json();
+        var cars = await postData('get_cars', {token: tkn});
         for(var i in cars["cars"]) {
             var node = document.createElement('button');
             node.className = "list-group-item";
@@ -67,8 +83,7 @@ async function clientData() {
                 node.classList.add("active");
             e.appendChild(node);
         }
-        data = await fetch('get_data?token=' + tkn);
-        data = await data.json();
+        data = await postData('get_data',{token: tkn});
         var rut = document.getElementById('rutTD');
         rut.innerText = data.rut;
         var nombre = document.getElementById('cnameTD');
@@ -82,8 +97,7 @@ async function clientData() {
 
 async function commentOn(VIN, message) {
     if(tkn !== null) {
-        var path = await fetch('comment_on?token=' + tkn + '&vin=' + VIN + '&msg=' + btoa(message));
-        path = await path.json();
+        var path = await postData('comment_on', {token: tkn, vin: VIN, msg: btoa(message)});
         //console.log(path);
         var e = document.getElementById('sendmsg');
         e.className = "btn " + (path['valid'] ? 'btn-success' : 'btn-danger');
@@ -95,8 +109,7 @@ async function listMsg(VIN) {
     var msgdiv = document.getElementById('messagebx');
     msgbox.innerHTML = '';
     msgdiv.hidden = false;
-    var resp_cms = await fetch('comments_for?token=' + tkn + '&vin=' + VIN);
-    resp_cms = await resp_cms.json();
+    var resp_cms = await postData('comments_for',{token: tkn, vin: VIN});
     //console.log(resp_cms);
     if (resp_cms.valid) {
         for(var i = 0; i < resp_cms.messages.length; i++) {
@@ -111,15 +124,14 @@ async function listMsg(VIN) {
 
 async function status(VIN) {
     if(tkn !== null) {
-        var data = await fetch('get_status?token=' + tkn + '&vin=' + VIN);
+        var data = await postData('get_status', {token: tkn, vin: VIN});
 //        map_engine_main(VIN, tkn);
-        oms_map(VIN, tkn);
-        data = await data.json();
+//        oms_map(VIN, tkn);
         document.getElementById('modeloTD').innerText = data.modelo;
         document.getElementById('marcaTD').innerText = data.marca;
         document.getElementById('anioTD').innerText = data.anio;
         await listMsg(VIN);
-        var path = await fetch('get_path?token=' + tkn + '&vin=' + VIN);
+        var path = await postData('get_path' {token: tkn, vin: VIN});
         path = await path.json();
         //console.log(path);
         var e = document.getElementById('pathList');

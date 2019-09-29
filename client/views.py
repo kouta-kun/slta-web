@@ -3,6 +3,7 @@ import json
 import random
 import re
 import string
+import bcrypt
 
 from django.http import HttpRequest, HttpResponse
 from django.template import loader
@@ -38,16 +39,17 @@ def opendb():
 
 def get_status(request: HttpRequest):
     global db
-    if request.method == "GET":
-        tok = request.GET.get("token", None)
+    if request.method == "POST":
+        rest_param = json.loads(request.body.decode())
+        tok = ("token" in rest_param and rest_param["token"]) or None
         data = {"valid": False}
         if tok is None:
-            data['msg'] = 'token is none';
+            data['msg'] = 'token is none'
             return HttpResponse(json.dumps(data), content_type='application/json', status=404)
-        elif tok not in toks.keys():
-            data['msg'] = 'token is not recognized';
+        elif tok not in toks:
+            data['msg'] = 'token is not recognized'
             return HttpResponse(json.dumps(data), content_type='application/json', status=404)
-        vin = request.GET.get("vin", None)
+        vin = ("vin" in rest_param and rest_param["vin"]) or None
         if vin is None:
             return HttpResponse(json.dumps(data), content_type='application/json', status=404)
         if db is None:
@@ -56,7 +58,8 @@ def get_status(request: HttpRequest):
         data["valid"] = True
         cname = toks[tok]
         cur.execute(
-            'select marca, modelo, anio from vehiculo inner join cliente on cliente.nombre=? and cliente.idcliente=vehiculo.cliente and vehiculo.vin=?',
+            'select marca, modelo, anio from vehiculo inner join cliente on cliente.nombre=?'
+            'and cliente.idcliente=vehiculo.cliente and vehiculo.vin=?',
             (cname, vin))
         r = cur.fetchone()
         data["marca"] = r[0]
@@ -73,12 +76,17 @@ uruguay_bottom_bound = (-34.973293, -54.951898)[0]
 
 def get_places(request: HttpRequest):
     global db
-    if request.method == "GET":
-        tok = request.GET.get("token", None)
+    if request.method == "POST":
+        rest_param = json.loads(request.body.decode())
+        tok = ("token" in rest_param and rest_param["token"]) or None
         data = {"valid": False}
-        if tok is None or tok not in toks.keys():
+        if tok is None:
+            data["msg"] = "No token in request"
             return HttpResponse(json.dumps(data), content_type='application/json', status=404)
-        vin = request.GET.get("vin", None)
+        elif tok not in toks:
+            data["msg"] = "Token no reconocido, por favor vuelva a conectarse"
+            return HttpResponse(json.dumps(data), content_type='application/json', status=404)
+        vin = ("vin" in rest_param and rest_param["vin"]) or None
         if vin is None:
             return HttpResponse(json.dumps(data), content_type='application/json', status=404)
         if db is None:
@@ -109,58 +117,19 @@ def get_places(request: HttpRequest):
         return HttpResponse(json.dumps(data), content_type='application/json', status=200)
 
 
-def get_gridpath(request: HttpRequest):
-    global db
-    if request.method == "GET":
-        tok = request.GET.get("token", None)
-        data = {"valid": False}
-        if tok is None or tok not in toks.keys():
-            return HttpResponse(json.dumps(data), content_type='application/json', status=404)
-        vin = request.GET.get("vin", None)
-        if vin is None:
-            return HttpResponse(json.dumps(data), content_type='application/json', status=404)
-        if db is None:
-            opendb()
-        cur: pyodbc.Cursor = db.cursor()
-        data["path"] = []
-        data["valid"] = True
-        cname = toks[tok]
-        cur.execute(
-            "select l1.geox, l1.geoy, l2.geox, l2.geoy, l1.tipo, l2.tipo, l1.nombre, l2.nombre from vehiculo"
-            " inner join cliente on vehiculo.cliente=cliente.idcliente"
-            " inner join integra on integra.idvehiculo=vehiculo.idvehiculo"
-            " inner join lote on integra.lote=lote.idlote and not integra.invalidado"
-            " inner join lugar as l1 on l1.idlugar=lote.origen"
-            " inner join lugar as l2 on l2.idlugar=lote.destino"
-            " where cliente.nombre=? and vehiculo.VIN=?",
-            (cname, vin))
-        for r in cur.fetchall():
-            relX_1 = (abs(uruguay_left_bound - r[1]) / abs(uruguay_left_bound - uruguay_right_bound))
-            relX_1 = relX_1 * 32 + 2
-
-            relY_1 = (abs(uruguay_top_bound - r[0]) / abs(uruguay_top_bound - uruguay_bottom_bound))
-            relY_1 = relY_1 * 29 + 3
-
-            relX_2 = (abs(uruguay_left_bound - r[3]))
-            relX_2 = relX_2 / abs(uruguay_left_bound - uruguay_right_bound)
-            relX_2 = relX_2 * 32 + 2
-
-            relY_2 = (abs(uruguay_top_bound - r[2]) / abs(uruguay_top_bound - uruguay_bottom_bound))
-            relY_2 = relY_2 * 29 + 3
-
-            data["path"].append((int(relX_1), int(relY_1) - 1, r[4], r[6]))
-            data["path"].append((int(relX_2), int(relY_2) - 1, r[5], r[7]))
-        return HttpResponse(json.dumps(data), content_type='application/json', status=200)
-
-
 def get_path(request: HttpRequest):
     global db
-    if request.method == "GET":
-        tok = request.GET.get("token", None)
+    if request.method == "POST":
+        rest_param = json.loads(request.body.decode())
+        tok = ("token" in rest_param and rest_param["token"]) or None
         data = {"valid": False}
-        if tok is None or tok not in toks.keys():
+        if tok is None:
+            data["msg"] = "No token in request"
             return HttpResponse(json.dumps(data), content_type='application/json', status=404)
-        vin = request.GET.get("vin", None)
+        elif tok not in toks:
+            data["msg"] = "Token no reconocido, por favor vuelva a conectarse"
+            return HttpResponse(json.dumps(data), content_type='application/json', status=404)
+        vin = ("vin" in rest_param and rest_param["vin"]) or None
         if vin is None:
             return HttpResponse(json.dumps(data), content_type='application/json', status=404)
         if db is None:
@@ -188,23 +157,45 @@ def get_path(request: HttpRequest):
 
 def comments_for(request: HttpRequest):
     global db
-    if request.method == "GET":
-        tok = request.GET.get("token", None)
-        car = request.GET.get("vin", None)
+    if request.method == "POST":
+        rest_param = json.loads(request.body.decode())
+        tok = ("token" in rest_param and rest_param["token"]) or None
         data = {"valid": False}
-        if tok is None or tok not in toks.keys() or car is None:
+        if tok is None:
+            data["msg"] = "No token in request"
+            return HttpResponse(json.dumps(data), content_type='application/json', status=404)
+        elif tok not in toks:
+            data["msg"] = "Token no reconocido, por favor vuelva a conectarse"
+            return HttpResponse(json.dumps(data), content_type='application/json', status=404)
+        car = ("vin" in rest_param and rest_param["vin"]) or None
+        if car is None:
+            data["msg"] = "No vin in request"
             return HttpResponse(json.dumps(data), content_type='application/json', status=404)
         if db is None:
             opendb()
         data["valid"] = True
         cur: pyodbc.Cursor = db.cursor()
-        cur.execute("select concat(concat(concat('Cliente: ', comentario), ' @ '), fecha), fecha"
-                    " from comentarioCliente "
-                    "inner join vehiculo on comentarioCliente.idvehiculo=vehiculo.idvehiculo where VIN=?\nunion\n"
-                    "select concat(concat(concat('Administrativo: ', comentario), ' @ '), fecha), fecha"
-                    " from comentarioUsuario "
-                    "inner join vehiculo on comentarioUsuario.idvehiculo=vehiculo.idvehiculo where VIN=?"
-                    " order by 2;", (car, car))
+        cur.execute('(select concat(concat('
+                    ' usuario.nombredeusuario, ": "),'
+                    ' bson_value_varchar(datos, "mensaje"))'
+                    ' from evento inner join vehiculo'
+                    ' on vehiculo.idvehiculo=bson_value_int(datos,"idvehiculo")'
+                    ' inner join usuario on usuario.idusuario=bson_value_int(datos,"autor")'
+                    ' and bson_value_varchar(datos, "tipo")="comentario"'
+                    ' and bson_value_varchar(datos, "por")="admin"'
+                    ' where vin=?'
+                    ')'
+                    '\nunion all\n'
+                    '(select concat(concat('
+                    '        cliente.nombre, ": "),'
+                    '        bson_value_varchar(datos, "mensaje"))'
+                    '  from evento inner join vehiculo'
+                    ' on vehiculo.idvehiculo=bson_value_int(datos,"idvehiculo")'
+                    ' inner join cliente on cliente.idcliente=bson_value_int(datos,"autor")'
+                    ' and bson_value_varchar(datos, "tipo")="comentario"'
+                    ' and bson_value_varchar(datos, "por")="cliente"'
+                    ' where vin=?'
+                    ')', (car, car))
         data["messages"] = []
         for r in cur.fetchall():
             data["messages"].append(r[0])
@@ -213,26 +204,38 @@ def comments_for(request: HttpRequest):
 
 def comment_on(request: HttpRequest):
     global db
-    if request.method == "GET":
-        tok = request.GET.get("token", None)
-        car = request.GET.get("vin", None)
-        msg = request.GET.get("msg", None)
+    if request.method == "POST":
+        rest_param = json.loads(request.body.decode())
+        tok = ("token" in rest_param and rest_param["token"]) or None
         data = {"valid": False}
-        if tok is None or tok not in toks.keys() or car is None or msg is None:
+        if tok is None:
+            data["msg"] = "No token in request"
             return HttpResponse(json.dumps(data), content_type='application/json', status=404)
+        elif tok not in toks:
+            data["msg"] = "Token no reconocido, por favor vuelva a conectarse"
+            return HttpResponse(json.dumps(data), content_type='application/json', status=404)
+        car = ("vin" in rest_param and rest_param["vin"]) or None
+        if car is None:
+            data["msg"] = "No vin in request"
+            return HttpResponse(json.dumps(data), content_type='application/json', status=404)
+        msg = ("msg" in rest_param and rest_param["msg"]) or None
+        data = {"valid": False}
         if db is None:
             opendb()
         cur: pyodbc.Cursor = db.cursor()
         cname = toks[tok]
         msg = base64.b64decode(msg).decode("UTF-8")
-        kupdate = re.search("es un ([A-Z][a-z]+) ([0-9A-Za-z]+) del ([0-9]{4})", msg)
-        print(kupdate)
-        print(msg)
-        if kupdate:
-            cur.execute("update vehiculo set marca=?, modelo=?, anio=? where vin=?",
-                        (kupdate.group(1), kupdate.group(2), int(kupdate.group(3)), car))
-        cur.execute("insert into comentariocliente values((select idvehiculo from vehiculo where VIN=?), "
-                    "(select idcliente from cliente where nombre=?), current year to second, ?);", (car, cname, msg))
+        cur.execute("select idcliente from cliente where nombre=?", (cname,))
+        authorid = cur.fetchval()
+        cur.execute("select idvehiculo from vehiculo where vin=?", (car,))
+        vehicleid = cur.fetchval()
+        event_json = {
+            "tipo": "comentario", "por": "cliente",
+            "mensaje": msg, "autor": authorid,
+            "idvehiculo": vehicleid
+        }
+        cur.execute("insert into evento (datos, fechaAgregado) values(?::json, current year to second)",
+                    (json.dumps(event_json)))
         if cur.rowcount > 0:
             data["valid"] = True
         return HttpResponse(json.dumps(data), content_type='application/json')
@@ -240,9 +243,14 @@ def comment_on(request: HttpRequest):
 
 def get_client_data(request: HttpRequest):
     global db
-    tok = request.GET.get("token", None)
+    rest_param = json.loads(request.body.decode())
+    tok = ("token" in rest_param and rest_param["token"]) or None
     data = {"valid": False}
-    if tok is None or tok not in toks.keys():
+    if tok is None:
+        data["msg"] = "No token in request"
+        return HttpResponse(json.dumps(data), content_type='application/json', status=404)
+    elif tok not in toks:
+        data["msg"] = "Token no reconocido, por favor vuelva a conectarse"
         return HttpResponse(json.dumps(data), content_type='application/json', status=404)
     if db is None:
         opendb()
@@ -257,10 +265,15 @@ def get_client_data(request: HttpRequest):
 
 def get_cars(request: HttpRequest):
     global db
-    if request.method == "GET":
-        tok = request.GET.get("token", None)
+    if request.method == "POST":
+        rest_param = json.loads(request.body.decode())
+        tok = ("token" in rest_param and rest_param["token"]) or None
         data = {"valid": False}
-        if tok is None or tok not in toks.keys():
+        if tok is None:
+            data["msg"] = "No token in request"
+            return HttpResponse(json.dumps(data), content_type='application/json', status=404)
+        elif tok not in toks:
+            data["msg"] = "Token no reconocido, por favor vuelva a conectarse"
             return HttpResponse(json.dumps(data), content_type='application/json', status=404)
         if db is None:
             opendb()
@@ -273,7 +286,9 @@ def get_cars(request: HttpRequest):
             " when vehiculoIngresa.idvehiculo is null then 1"
             " else 0"
             " end as active "
-            "from vehiculo inner join cliente on vehiculo.cliente=cliente.idcliente and cliente.nombre=? left join vehiculoIngresa on vehiculoIngresa.idvehiculo=vehiculo.idvehiculo and vehiculoIngresa.tipoIngreso='Baja'",
+            "from vehiculo inner join cliente on vehiculo.cliente=cliente.idcliente "
+            " and cliente.nombre=? left join vehiculoIngresa on vehiculoIngresa.idvehiculo=vehiculo.idvehiculo"
+            " and vehiculoIngresa.tipoIngreso='Baja'",
             (cname,))
         data['you_are'] = cname
         for r in cur.fetchall():
@@ -283,22 +298,25 @@ def get_cars(request: HttpRequest):
 
 def get_token(request: HttpRequest):
     global db
-    if request.method == "GET":
+    if request.method == "POST":
         if db is None:
             opendb()
         cur: pyodbc.Cursor = db.cursor()
         data = {"valid": True, "token": None}
-        cname = request.GET.get("cname", None)
+        rest_param = json.loads(request.body.decode())
+        cname = ("cname" in rest_param and rest_param["cname"]) or None
         if cname is None:
             data["valid"] = False
             return HttpResponse(json.dumps(data), content_type="application/json", status=404)
-        pwd = request.GET.get("passwd", None)
+        pwd = ("passwd" in rest_param and rest_param["passwd"]) or None
         if pwd is None:
             data["valid"] = False
             return HttpResponse(json.dumps(data), content_type="application/json", status=400)
-        cur.execute("select count(*) from cliente where nombre=? and pin=?", (cname, pwd))
-        rowcount = cur.fetchval()
-        if rowcount > 0:
+        cur.execute("select passphrase from cliente where nombre=?", (cname,))
+        passphrase: str = cur.fetchval()
+        passphrase_bytes = passphrase.encode()
+        pwd_bytes = passphrase.encode()
+        if bcrypt.checkpw(pwd_bytes, passphrase_bytes):
             tkn = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase, k=12))
             toks[tkn] = cname
             data["token"] = tkn
