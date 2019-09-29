@@ -41,7 +41,11 @@ def get_status(request: HttpRequest):
     if request.method == "GET":
         tok = request.GET.get("token", None)
         data = {"valid": False}
-        if tok is None or tok not in toks.keys():
+        if tok is None:
+            data['msg'] = 'token is none';
+            return HttpResponse(json.dumps(data), content_type='application/json', status=404)
+        elif tok not in toks.keys():
+            data['msg'] = 'token is not recognized';
             return HttpResponse(json.dumps(data), content_type='application/json', status=404)
         vin = request.GET.get("vin", None)
         if vin is None:
@@ -269,8 +273,9 @@ def get_cars(request: HttpRequest):
             " when vehiculoIngresa.idvehiculo is null then 1"
             " else 0"
             " end as active "
-            "from vehiculo left join vehiculoIngresa on vehiculoIngresa.idvehiculo=vehiculo.idvehiculo and vehiculoIngresa.tipoIngreso='Baja' inner join cliente on vehiculo.cliente=cliente.idcliente and cliente.nombre=?",
+            "from vehiculo inner join cliente on vehiculo.cliente=cliente.idcliente and cliente.nombre=? left join vehiculoIngresa on vehiculoIngresa.idvehiculo=vehiculo.idvehiculo and vehiculoIngresa.tipoIngreso='Baja'",
             (cname,))
+        data['you_are'] = cname
         for r in cur.fetchall():
             data["cars"].append({"vin": r[0], "state": r[1]})
         return HttpResponse(json.dumps(data), content_type='application/json', status=200)
