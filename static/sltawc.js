@@ -53,7 +53,9 @@ async function postData(url = '', data = {}) {
     referrer: 'no-referrer', // no-referrer, *client
     body: JSON.stringify(data) // body data type must match "Content-Type" header
   });
-  return await response.json(); // parses JSON response into native JavaScript objects
+  r = await response.json(); // parses JSON response into native JavaScript objects
+  console.log(r);
+  return r;
 }
 
 var tkn = null;
@@ -77,7 +79,7 @@ async function clientData() {
             node.className = "list-group-item";
             const vin = cars["cars"][i].vin;
             node.innerText = vin;
-            node.onclick = async () => status(vin);
+            node.onclick = async () => await status(vin);
             const state = cars["cars"][i].state == 1;
             if (state)
                 node.classList.add("active");
@@ -125,6 +127,7 @@ async function listMsg(VIN) {
 async function status(VIN) {
     if(tkn !== null) {
         var data = await postData('get_status', {token: tkn, vin: VIN});
+        console.log(data);
 //        map_engine_main(VIN, tkn);
 //        oms_map(VIN, tkn);
         document.getElementById('modeloTD').innerText = data.modelo;
