@@ -307,10 +307,12 @@ def get_token(request: HttpRequest):
         cname = ("cname" in rest_param and rest_param["cname"]) or None
         if cname is None:
             data["valid"] = False
+            data["msg"] = "cname is none"
             return HttpResponse(json.dumps(data), content_type="application/json", status=404)
         pwd = ("passwd" in rest_param and rest_param["passwd"]) or None
         if pwd is None:
             data["valid"] = False
+            data["msg"] = "pwd is none"
             return HttpResponse(json.dumps(data), content_type="application/json", status=400)
         cur.execute("select passphrase from cliente where nombre=?", (cname,))
         passphrase: str = cur.fetchval()
@@ -331,4 +333,5 @@ def get_token(request: HttpRequest):
             return HttpResponse(json.dumps(data), content_type="application/json", status=200)
         else:
             data["valid"] = False
+            data["msg"] = "password was wrong!"
             return HttpResponse(json.dumps(data), content_type="application/json", status=404)
