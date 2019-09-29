@@ -17,12 +17,17 @@
             integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
             crossorigin="anonymous"></script>
     <script src="{% static 'showdown.min.js' %}"></script>
+    <script>showdown.setOption('tables', true);</script>
     <script src="{% static 'sltabase.js' %}"></script>
     <script type="text/javascript" src="https://visjs.github.io/vis-network/dist/vis-network.min.js"></script>
     <link href="https://visjs.github.io/vis-network/dist/vis-network.min.css" rel="stylesheet" type="text/css"/>
     <script>
     var initDom = null;
-    init = function() {initDom = document.getElementById('siteBox').innerHTML; opacitySite(0, 0.05);}
+    init = function() {initDom = document.getElementById('siteBox').innerHTML; opacitySite(0, 0.05);
+	if(document.location.href.indexOf('#') >= 0) {
+		let page = document.location.href.split('#')[1];
+		pagesites[pageindexes[page]]();
+}}
 
     var pageCount = 0;
 
@@ -69,7 +74,8 @@
         {'nombre': 'Infraestructura situacional', 'miembros': ['Comobo', 'kouta-kun'], 'texto': 'Equipo de Infraestructura y redes'},
         {'nombre': 'Logistic System Distribution', 'miembros': ['kouta-kun', 'dpadron'], 'texto': 'Desarrolladores de la distribución de servidor y shells'},
         {'nombre': 'Finanzas ilegales', 'miembros': ['nickx456', 'parawhy', 'Comobo'], 'texto': 'Encargados del area empresarial'},
-        {'nombre': 'Ingestión de proyectos', 'miembros': ['dpadron', 'nickx456'], 'texto': 'Encargados de gestión del proyecto'}
+        {'nombre': 'Ingestión de proyectos', 'miembros': ['dpadron', 'nickx456'], 'texto': 'Encargados de gestión del proyecto'},
+	{'nombre': 'La estafa del Marketing', 'miembros': ['dpadron', 'parawhy', 'kouta-kun'], 'texto': 'Encargados de los documentos de presentación/marketing/sitio web'}
     ];
 
     function filterFor(k) {
@@ -201,6 +207,7 @@
     }
 
     pagesites = [mainSite, acercaDe, acercaSlta, acercaSltaWC, precios];
+    pageindexes = {'slta-wc': 3, 'slta': 2, 'about': 1};
 
     async function scroll() {
         if(document.getElementsByTagName('iframe').length > 0 && Math.abs(document.documentElement.scrollTop - (document.documentElement.offsetHeight - window.innerHeight)) < 10)
@@ -211,8 +218,6 @@
             }
         }
     }
-    showdown.setOption('tables', true);
-
     </script>
     <style>
     </style>

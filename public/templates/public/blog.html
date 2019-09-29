@@ -13,6 +13,13 @@
         .blogdiv {
             width: 30%;
         }
+	.hovertitle:hover {
+		animation: color 1s linear infinite alternate;
+	}
+	@keyframes color {
+	    from {color: inherited;}
+	    to {color: #0f0fff;}
+	}
     </style>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -26,10 +33,11 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
             integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
             crossorigin="anonymous"></script>
-    <script src="{% static 'sltabase.js' %}"></script>
     <script src="{% static 'showdown.min.js' %}"></script>
+    <script>    showdown.setOption('tables', true);
+</script>
+    <script src="{% static 'sltabase.js' %}"></script>
     <script>
-    showdown.setOption('tables', true);
     function opacityBlog(k) {
         var id = window.setTimeout(function() {}, 0);
 
@@ -60,9 +68,9 @@
             let cbody = document.createElement('div');
             cbody.classList='card-body';
             let ctitle = document.createElement('h5');
-            ctitle.classList = 'card-title';
+            ctitle.classList = 'card-title hovertitle';
             ctitle.innerText = blogposts[i].titulo;
-            ctitle.onclick = () => strMarkdown(mdtext, x => setSiteHtml('<br/><b>'+blogposts[i].tags.join(', ')+'</b><hr/>'+x + '<hr/>' + blogposts[i].fecha.split('T')[0]), () => opacityBlog(0.4));
+            ctitle.onclick = () => strMarkdown(mdtext, x => setSiteHtml('<br/><b>'+blogposts[i].tags.map(p => '<a href="?tags=' + p + '">' + p + '</a>').join(', ')+'</b><hr/>'+x + '<hr/>' + blogposts[i].fecha.split('T')[0]), () => opacityBlog(0.4));
             let ctext = document.createElement('p');
             ctext.classList = 'card-text';
             ctext.innerHTML = '<i>' + blogposts[i].tags.join('|') + '</i>';
@@ -71,19 +79,25 @@
             item.appendChild(cbody);
             domColumns.appendChild(item);
         }
-        domColumns.style["margin-top"] = "20px";
     }
 
     var blogposts = {};
     var validposts = [];
 
     function unhideQuote(x) {
-        document.getElementById('quoteBox').style = "clear:both;height:" + x + "vh;overflow-y: hidden; margin-top: 5px;";
+        document.getElementById('quoteBox').style = "clear:both;height:" + x + "vh;overflow-y: hidden;";
         document.getElementById('quoteBox').style.opacity = (x/15);
         if(x < 15)
             setTimeout(unhideQuote,30,x+0.5);
-        else document.getElementById('quoteBox').style = "clear:both;height:vh;overflow-y: visible; margin-top: 5px;";
+        else document.getElementById('quoteBox').style = "clear:both;height:vh;overflow-y: visible;";
     }
+
+    const tagData = {'kouta-kun': '# Kouta-kun  \n- Nombre real: Salvador Pardiñas\n- Encargado de base de datos',
+		     'sql': '#SQL  \nArtículos acerca de la base de datos del [SLTA](/public/#slta), o consultas que pueden ser aplicadas en la misma.',
+		     'dpadron': '# dpadron  \n- Nombre real: Daniel Padrón\n- Encargado de programación y ADA',
+		     'bit': '# Bit SRL  \n- [Nuestra empresa](/public/#about) se dedica al desarrollo de sistemas logísticos.',
+		     'slta-wc': '#SLTA-WC  \nArtículos sobre el desarrollo de [SLTA-WC](/public/#slta-wc), la extensión web del [SLTA](/public/#slta).',
+		     'blog': '#BLOG  \nSitio web en el cual publicamos diarios de desarrollo, tutoriales de uso, etc'};
 
     async function init() {
         let blogdata = await fetch('blogpost?' + (document.location.href.split('?')[1] || ""));
@@ -101,9 +115,32 @@
                                       'tags': blogdata[i].fields.tags.split(',')};
             validposts.push(blogdata[i].pk);
         }
-        console.log(blogposts);
+	console.log(blogposts);
         loadCards();
-        unhideQuote(0);
+	if(document.location.href.indexOf('tags=') >= 0) {
+		let dataTag = document.location.href.split('=')[1];
+		if(tagData[dataTag] !== undefined) {
+			strMarkdown(tagData[dataTag], x => setSiteHtml(x));
+		}
+	} else {
+		if(document.location.href.indexOf('#') >= 0) {
+			postid = Number.parseInt(document.location.href.split('#')[1])-1;
+			strMarkdown(blogposts[validposts[postid]].texto,
+				x => setSiteHtml('<br/><b>'+blogposts[validposts[postid]].tags.map(p => '<a href="?tags=' + p + '">' + p + '</a>').join(', ')+'</b><hr/>'+x + '<hr/>' + blogposts[validposts[postid]].fecha.split('T')[0])
+			);
+			splits = document.location.href.split('#');
+			if(splits.length > 2) {
+			    document.getElementById('siteBox').innerHTML += '<hr/><pre>' + blogposts[validposts[postid]].texto + "</pre>";
+			}
+		} else {
+			postid = 0;
+			strMarkdown(blogposts[validposts[postid]].texto,
+				x => setSiteHtml('<br/><b>'+blogposts[validposts[postid]].tags.map(p => '<a href="?tags=' + p + '">' + p + '</a>').join(', ')+'</b><hr/>'+x + '<hr/>' + blogposts[validposts[postid]].fecha.split('T')[0])
+			);
+		}
+	}
+	unhideQuote(0);
+
     }
     </script>
     <meta name="viewport"
@@ -111,21 +148,20 @@
 </head>
 <body onload="init()">
 <div class="container-fluid">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="./" onclick="mainSite();">bit.plan</a>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light" style="float: left; width:100%;">
+        <a class="navbar-brand" href="/public/">bit</a><a class="navbar-brand" href="blog">.plan</a>
         <input class="form-control" type="search" placeholder="Búsqueda" aria-label="Búsqueda" onchange="search()"
                id="searchbar">
     </nav>
-    <div id="wholeBox" style="width: 100%; position: relative; height: 65vh;">
+    <div id="wholeBox" style="width: 100%; position: relative; height: 70vh; clear: both; padding-top: 5px;">
         <div id="blogBox" class="blogdiv float-left" style="overflow-y: scroll; height:100%;">
         </div>
-        <div id="siteBox" class="sitediv float-right">
-            <center><h2>Para ver un artículo haga click en su título</h2></center>
+        <div id="siteBox" class="sitediv float-right" style="overflow-y: scroll; height: 100%;">
         </div>
     </div>
-    <div style="clear: both; height: 0vh; overflow-y:hidden; margin-top: 5px;" id="quoteBox">
+    <div style="clear: both; height: 0vh; overflow-y:hidden; " id="quoteBox">
         <hr/>
-        <blockquote class="blockquote float-right">
+        <blockquote class="blockquote float-left">
             <p class="mb-0">{{ quote_text }}</p>
             <footer class="blockquote-footer">{{ quote_autor }}</footer>
         </blockquote>
