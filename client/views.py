@@ -314,6 +314,14 @@ def get_token(request: HttpRequest):
             return HttpResponse(json.dumps(data), content_type="application/json", status=400)
         cur.execute("select passphrase from cliente where nombre=?", (cname,))
         passphrase: str = cur.fetchval()
+        if passphrase is None:
+            defpwd = (str(cname) + "-change!").encode()
+            hashed = bcrypt.hashpw(defpwd, bcrypt.gensalt())
+            if type(hashed) != str:
+                hashed = hashed.decode()
+            cur.execute("update cliente set passphrase=? where nombre=?", (hashed, cname))
+            cur.execute("select passphrase from cliente where nombre=?", (cname,))
+            passphrase: str = cur.fetchval()
         passphrase_bytes = passphrase.encode()
         pwd_bytes = passphrase.encode()
         if bcrypt.checkpw(pwd_bytes, passphrase_bytes):
