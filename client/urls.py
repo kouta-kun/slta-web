@@ -10,6 +10,5 @@ urlpatterns = [
     path('comment_on', views.comment_on, name='comment_on'),
     path('comments_for', views.comments_for, name='comments_for'),
     path('get_data', views.get_client_data, name='get_data'),
-    path('get_gridpath', views.get_gridpath, name='get_gridpath'),
     path('', views.index, name='')
 ]
