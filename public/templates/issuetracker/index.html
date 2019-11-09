@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SLTA - Reportar errores</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body>
+    <h1>Errores reportados del sistema</h1>
+    <ul>
+        {% for i in issues %}
+        <li>
+            {{ i.reporter.name }} @ {{ i.report_time }}: {{ i.description }}<br/>
+            Estado: {{ i.status }}
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
