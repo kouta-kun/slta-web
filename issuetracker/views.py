@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from django.shortcuts import render
 from django.template import loader
 from . import models
@@ -14,8 +14,9 @@ def index(httpreq: HttpRequest):
     elif httpreq.method == 'POST':
         user = httpreq.POST['user']
         user = models.User.objects.get(name=user)
-        pin = httpreq.POST['pin']
+        pin = int(httpreq.POST['pin'])
         if user.pin != pin:
             return HttpResponse("PIN incorrecto", status=403)
         message = httpreq.POST['desc']
-        models.Issue(reporter=user, description=message).save()
+        models.Issue(reporter=user, description=message, status='P').save()
+        return HttpResponseRedirect('.')
