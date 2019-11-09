@@ -8,7 +8,7 @@ from . import models
 def index(httpreq: HttpRequest):
     if httpreq.method == 'GET':
         temp = loader.get_template("issuetracker/index.html")
-        iss = models.Issue.objects.select_related('reporter').all()
+        iss = models.Issue.objects.select_related('reporter').select_related('fixed_in').all()
         ctx = {"issues": iss}
         return HttpResponse(temp.render(ctx, httpreq))
     elif httpreq.method == 'POST':

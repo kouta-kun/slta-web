@@ -14,6 +14,7 @@
         <th>Fecha</th>
         <th>Estado</th>
         <th>Reportado por</th>
+        <th>Reparado en versión</th>
     </thead>
     {% for i in issues %}
     <tr>
@@ -21,6 +22,11 @@
         <td>{{ i.report_time }}</td>
         <td>{{ i.get_status_display }}</td>
         <td>{{ i.reporter.name }}</td>
+        <td>
+            {% if i.fixed_in is not None %}
+                {{ i.fixed_in.nombre_update }}
+            {% endif %}
+        </td>
     </tr>
     {% endfor %}
 </table>
