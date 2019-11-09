@@ -5,8 +5,8 @@ from . import models
 
 
 # Create your views here.
-def issues(httpreq):
+def index(httpreq):
     temp = loader.get_template("issuetracker/index.html")
-    iss = models.Issue.objects.select_related('user').all()
+    iss = models.Issue.objects.select_related('reporter').all()
     ctx = {"issues": iss}
     return HttpResponse(temp.render(ctx, httpreq))

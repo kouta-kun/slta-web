@@ -8,7 +8,7 @@ class User(models.Model):
 
 
 class Issue(models.Model):
-    reporter = models.ForeignKey(User, primary_key=True, on_delete=models.CASCADE)
-    description = models.TextField()
-    status = models.CharField(choices=[("P", "Progreso"), ("R", "Reparado")], default="R")
-    report_time = models.DateField(auto_now_add=True, auto_now=True)
+    reporter = models.ForeignKey(User, primary_key=False, on_delete=models.CASCADE)
+    description = models.TextField(primary_key=True)
+    status = models.CharField(choices=[("P", "Progreso"), ("R", "Reparado")], default="R", max_length=1)
+    report_time = models.DateField(auto_now_add=True)
