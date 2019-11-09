@@ -7,7 +7,7 @@
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 <body>
-<center><h1>Errores reportados del sistema</h1></center>
+<center><h1 style="color: #353535">Errores reportados del sistema</h1></center>
 <table class="table table-bordered" style="margin-left: auto; margin-right: auto; width: 80%;">
     <thead class="thead-dark">
         <th>Descripción</th>
@@ -31,11 +31,25 @@
     {% endfor %}
 </table>
 <hr/>
+<div style="width: 80%; padding-left: 40%; margin-left: auto; margin-right: auto;">
 <form action="." method="POST" id="issueform">
-    Usuario: <input type="text" name="user"><br/>
-    PIN: <input type="number" name="pin"><br/>
-    Descripcion: <textarea form="issueform" name="desc"></textarea><br/>
-    <input type="submit" value="Enviar">
+<div class="input-group mb-3">
+    <div class="input-group-prepend">
+	<span class="input-group-text">Usuario</span></div>
+    <input type="text" name="user" class="form-control">
+</div>
+<div class="input-group mb-3">
+    <div class="input-group-prepend">
+	<span class="input-group-text">PIN</span></div>
+     <input type="number" name="pin" class="form-control">
+</div>
+<div class="input-group mb-3">
+    <div class="input-group-prepend">
+	<span class="input-group-text">Descripcion</span></div>
+<textarea form="issueform" name="desc" class="form-control"></textarea>
+</div>
+<center><input type="submit" value="Enviar" class="btn btn-outline-secondary"></center>
+</center>
 </form>
 </body>
 </html>
