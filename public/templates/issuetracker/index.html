@@ -7,14 +7,29 @@
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 <body>
-    <h1>Errores reportados del sistema</h1>
-    <ul>
-        {% for i in issues %}
-        <li>
-            {{ i.reporter.name }} @ {{ i.report_time }}: {{ i.description }}<br/>
-            Estado: {{ i.status }}
-        </li>
-        {% endfor %}
-    </ul>
+<center><h1>Errores reportados del sistema</h1></center>
+<table>
+    <tr>
+        <th>Descripción</th>
+        <th>Fecha</th>
+        <th>Estado</th>
+        <th>Reportado por</th>
+    </tr>
+    {% for i in issues %}
+    <tr>
+        <td>{{ i.description }}</td>
+        <td>{{ i.report_time }}</td>
+        <td>{{ i.get_status_display }}</td>
+        <td>{{ i.reporter.name }}</td>
+    </tr>
+    {% endfor %}
+</table>
+<hr/>
+<form action="." method="POST" id="issueform">
+    Usuario: <input type="text" name="user"><br/>
+    PIN: <input type="number" name="pin"><br/>
+    Descripcion: <textarea form="issueform" name="desc"></textarea><br/>
+    <input type="submit" value="Enviar">
+</form>
 </body>
 </html>
