@@ -11,4 +11,4 @@ Hicimos un webclient que se conecta a la base de datos INFORMIX a traves de DJAN
 
 ## ¿Blog?
 bit.plan es un blog que tiene articulos relacionados al desarrollo de slta o eso dijimos,
-me gustó como quedó el código así que lo voy a robar para hacer un blog en python extensible o algo así
+me gustó como quedó el código así que lo voy a robar para [hacer un blog en python extensible o algo así](https://github.com/kouta-kun/bit-plan)
